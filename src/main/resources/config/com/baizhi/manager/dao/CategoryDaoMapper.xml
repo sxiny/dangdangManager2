@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.manager.dao.CategoryDao">
+	<resultMap type="Category" id="reCate">
+			<result column="category_id" property="id"/>
+			<result column="category_name" property="name"/>
+			<result column="parent_id" property="pid"/>
+	</resultMap>
+	<select id="getAll" resultType="Category1">
+			select c.id id,c.name name,c.pid pid,count(b.book_id)count,c.pname pname from 
+			(select d1.category_id id, d1.category_name name,d1.parent_id pid, d.category_name pname
+			from d_category d  left join d_category d1 
+			on d.category_id = d1.parent_id  where d1.parent_id is not null)c
+			left join d_book b 
+			on c.id = b.category_id 
+			GROUP BY c.id,c.name,c.pid
+			UNION
+			select ccc.category_id id,ccc.category_name name,ccc.parent_id pid,sum(count) count ,null as pname from
+			(select *
+			from d_category where parent_id is null)ccc left JOIN (select c.category_id id,c.category_name name,c.parent_id pid, count(b.book_id) count from d_category c left join d_book b 
+			on c.category_id = b.category_id where c.parent_id is not null
+			GROUP BY c.category_id,c.category_name,c.parent_id)ddd
+			on ccc.category_id =ddd.pid
+			GROUP BY ccc.category_id,ccc.category_name,ccc.parent_id
+			ORDER BY id limit #{start},#{rows}
+	</select>
+	<select id="getCount" resultType="int">
+			select count(*) from d_category
+	</select>
+	<select id="getFirst" resultMap="reCate">
+			select * from d_category where parent_id is null
+	</select>
+	<select id="getSecond" resultMap="reCate">
+			select * from d_category where parent_id is not null
+	</select>
+	<insert id="addCategory">
+			insert into d_category(category_name,parent_id) values(#{name},#{pid})
+	</insert>
+	<select id="getOne" resultMap="reCate">
+			select * from d_category where category_id=#{id}
+	</select>
+	<update id="update">
+			update d_category set category_name=#{name},parent_id=#{pid}
+			where category_id =#{id}
+	</update>
+	<delete id="delete">
+			delete from d_category where category_id in
+			<foreach collection="array" open="(" separator="," close=")" item="id">
+				#{id}
+			</foreach>	
+	</delete>
+</mapper>

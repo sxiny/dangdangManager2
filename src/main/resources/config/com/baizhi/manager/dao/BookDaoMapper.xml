@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.manager.dao.BookDao">
+		<resultMap type="Book" id="reBook">
+			<result column="book_id" property="id"/>
+			<result column="book_name" property="name"/>
+			<result column="book_price" property="price"/>
+			<result column="book_img" property="img"/>
+			<result column="book_author" property="author"/>
+			<result column="book_addtime" property="addtime"/>
+			<result column="dang_price" property="dprice"/>
+			<association property="category" javaType="Category">
+					<result column="category_id" property="id"/>
+					<result column="category_name" property="name"/>
+			</association>
+		</resultMap>
+		<select id="getAll" resultMap="reBook">
+			select * from d_book b left join d_category c 
+			on b.category_id=c.category_id
+			limit #{start},#{rows}
+		</select>
+		<select id="getCount" resultType="int">
+			select count(*) from d_book			
+		</select>
+		<insert id="addBook">
+			insert into d_book
+			(book_name,book_price,book_img,book_author,book_addtime,dang_price,category_id)
+			value(#{name},#{price},#{img},#{author},#{addtime},#{dprice},#{category.id}) 
+		</insert>
+		<update id="update">
+			update d_book set book_name =#{name,jdbcType=VARCHAR},book_price=#{price,jdbcType=DOUBLE},
+			book_img=#{img},book_author=#{author,jdbcType=VARCHAR},book_addtime=#{addtime},dang_price=#{dprice,jdbcType=DOUBLE},
+			category_id=#{category.id,jdbcType=INTEGER} where book_id = #{id,jdbcType=INTEGER}
+		</update>
+		<delete id="deleteBook">
+			delete from d_book where book_id in
+			<foreach collection="array" open="(" separator="," close=")" item="id">
+				#{id}
+			</foreach>	
+	</delete>
+</mapper>

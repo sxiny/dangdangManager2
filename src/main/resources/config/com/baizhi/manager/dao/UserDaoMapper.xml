@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.manager.dao.UserDao">
+		<resultMap type="User" id="reUser">
+			<result column="user_count" property="userCount"/>
+			<result column="user_password" property="password"/>
+			<result column="user_name" property="userName"/>
+		</resultMap>
+		<select id="getByCount" resultMap="reUser">
+			select * from d_user where user_count =#{userCount}
+		</select>
+		<select id="getByPwd" resultMap="reUser">
+			select * from d_user
+			where user_count =#{userCount} and user_password=#{password}
+		</select>
+			
+</mapper>
